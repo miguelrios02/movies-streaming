@@ -2,17 +2,26 @@ const Movies = require("../models/movies.models");
 const uuid = require("uuid");
 const MovieGenres = require("../models/movie_genres.models");
 const Genres = require("../models/genres.models");
+const { Op } = require("sequelize");
 
-const findAllMovies = async (limit, offset) => {
+const findAllMovies = async (limit, offset, search) => {
   // limit -> Cuantos quiero mostrar
   // offset -> Donde empiezo a mostrar
 
-  // const queryOptions = {
-  //     limit: limit || 20,
-  //     offset: offset || 0
-  // }
-  [Op];
-  const data = await Movies.findAndCountAll();
+  const queryOptions = {
+    limit: limit,
+    offset: offset,
+    where: {},
+  };
+  if (search) {
+    queryOptions.where = {
+      title: {
+        [Op.iLike]: `%${search}%`,
+      }, //Like iLike
+    };
+  }
+
+  const data = await Movies.findAndCountAll(queryOptions);
   return data;
 };
 

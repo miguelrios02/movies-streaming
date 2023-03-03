@@ -1,16 +1,33 @@
 const movieControllers = require("./movies.controllers");
 const responses = require("../utils/handleResponses");
 const { addToFirebaseMovieVideo } = require("../utils/firebase");
-const addGenreToMovie = require("./movies.controllers");
+const host = require("../../config").api.host;
 
 const getAllMovies = (req, res) => {
+  const offset = Number(req.query.offset) || 0;
+  const limit = Number(rq.query.limit) || 10;
+  const search = req.query.search;
+
   movieControllers
-    .findAllMovies()
+    .findAllMovies(limit, offset, search)
     .then((data) => {
+      const nextPageUrl =
+        data.count - offset > limit
+          ? `${host}/api/v1/movies?offset=${offset + limit}&limit=${limit}`
+          : null;
+      const prevPageUrl =
+        offset - limit >= 0
+          ? `${host}/api/v1/movies?offset=${offset - limit}&limit=${limit}`
+          : null;
+
       responses.success({
         res,
         status: 200,
         data,
+        count: data.count,
+        next: nextPageUrl,
+        prev: prevPageUrl,
+        data: data.rows,
         message: "Getting all the movies",
       });
     })
